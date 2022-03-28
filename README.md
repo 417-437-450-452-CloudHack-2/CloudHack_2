@@ -63,4 +63,3 @@ In this project, we’ll be taking a look at building and deploying a microservi
 3. The `app` folder contains the recommended file structure for the project. While you're free to setup the project in any way you like, we recommend that you follow the structure of the `app` folder.
 
 
-[Services Setup](ServicesSetup.png)
