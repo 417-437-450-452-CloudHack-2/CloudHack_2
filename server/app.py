@@ -3,6 +3,7 @@ import pika
 import json
 
 app = Flask(__name__)
+arr = []
 
 def add_new_ride(ride_details):
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
@@ -49,12 +50,13 @@ def new_ride():
 
 @app.route('/new-ride-matching-consumer/', methods = ['POST'])
 def new_ride_match():
-    ride_match = json.dumps(request.get_json())
-    name =ride_match["name"]
-    consumer_id = ride_match["id"]
+    ride_match = request.get_json()
+    name = ride_match['name']
+    consumer_id = ride_match['id']
     addr=request.remote_addr
     arr.append(((name,addr),(consumer_id,addr))) #doubt, ask see in github
     print(arr)
+    return " [x] mapped array"
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
