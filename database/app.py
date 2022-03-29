@@ -30,7 +30,7 @@ db = create_engine(db_string)
 def add_new_row(json_obj):
     # Insert a new number into the 'numbers' table.
     db.execute("INSERT INTO ride_details (pickup,destination,sleep_time,cost,seats) "+\
-        "VALUES ("+\ 
+        "VALUES (" + \
         json_obj['pickup'] + "," + \
         json_obj['destination']  + "," + \
         int(json_obj['time'])  + "," + \
