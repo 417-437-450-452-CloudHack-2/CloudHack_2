@@ -1,9 +1,10 @@
 import time
-import random
 import pika
 import json
 import time
-from sqlalchemy import create_engine
+import os
+# from sqlalchemy import create_engine
+from pymongo import MongoClient
 
 sleepTime = 20
 # print(' [*] Sleeping for ', sleepTime, ' seconds.')
@@ -17,49 +18,57 @@ channel.queue_declare(queue='ride-match-queue', durable=True)
 
 print(' [*] Waiting for messages.')
 
-db_name = 'ride_details'
-db_user = 'postgres'
-db_pass = 'postgres'
-db_host = 'db'
-db_port = '5432'
+# db_name = os.getenv['POSTGRES_DB']
+# db_user = os.getenv['POSTGRES_USER']
+# db_pass = os.getenv['POSTGRES_PASSWORD']
+# db_host = 'localhost'
+# db_port = '5432'
 
-# Connecto to the database
-db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
-db = create_engine(db_string)
+# # Connecto to the database
+# db_string = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
+# db = create_engine(db_string)
 
-def create_db():
-    # Create the database
-    db.execute("CREATE TABLE IF NOT EXISTS ride_details (pickup varchar(255), destination varchar(255), sleep_time integer, cost float, seats integer;")
+# def create_db(db):
+#     # Create the database
+#     db.execute("CREATE TABLE IF NOT EXISTS ride_details (pickup varchar(255), destination varchar(255), sleep_time integer, cost float, seats integer;")
 
-def add_new_row(json_obj):
-    # Insert a new number into the 'numbers' table.
-    db.execute("INSERT INTO ride_details (pickup,destination,sleep_time,cost,seats) "+\
-        "VALUES (" + \
-        json_obj['pickup'] + "," + \
-        json_obj['destination']  + "," + \
-        int(json_obj['time'])  + "," + \
-        json_obj['cost']  + "," + \
-        json_obj['seats']  + ");")
+# def add_new_row(db,json_obj):
+#     # Insert a new number into the 'numbers' table.
+#     db.execute("INSERT INTO ride_details (pickup,destination,sleep_time,cost,seats) "+\
+#         "VALUES (" + \
+#         json_obj['pickup'] + "," + \
+#         json_obj['destination']  + "," + \
+#         int(json_obj['time'])  + "," + \
+#         json_obj['cost']  + "," + \
+#         json_obj['seats']  + ");")
 
-def get_row():
-    # Retrieve the last number inserted inside the 'numbers'
-    query = "SELECT * from ride_details LIMIT 5;"
+# def get_row(db):
+#     # Retrieve the last number inserted inside the 'numbers'
+#     query = "SELECT * from ride_details LIMIT 5;"
 
-    result_set = db.execute(query)  
-    for (r) in result_set:  
-        return r[0]
+#     result_set = db.execute(query)  
+#     for (r) in result_set:  
+#         return r[0]
+
+client = MongoClient('mongodb')
+db = client['ride-db']
+collection = db["ride-col"]
+print('[INFO] database CREATED.')
 
 def callback(ch, method, properties, body):
-    create_db()
-    print(" [x] Received new ride data ")
+    # create_db(db)
+    # print(" [x] Received new ride data ")
+    # json_obj = json.loads(body)
+    # add_new_row(db,json_obj)
+    # print(" [x] Done inserting")
+    # get_row(db)
+    # print(" [x] Done fetching")
+    # print(' [*] Sleeping for ', sleep_time, ' seconds.')
+    # time.sleep(sleep_time)
+    # print(json_obj)
     json_obj = json.loads(body)
-    add_new_row(json_obj)
-    print(" [x] Done inserting")
-    get_row()
-    print(" [x] Done fetching")
-    #print(' [*] Sleeping for ', sleep_time, ' seconds.')
-    #time.sleep(sleep_time)
-    #print(json_obj)
+    collection.insert_one(json_obj)
+    print("[INFO] Inserted ", json_obj, " into database")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

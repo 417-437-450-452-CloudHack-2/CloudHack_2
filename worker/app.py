@@ -1,10 +1,15 @@
 import pika
 import json
 import time
+import os
 
-sleepTime = 20
+sleepTime = 60
 # print(' [*] Sleeping for ', sleepTime, ' seconds.')
 time.sleep(sleepTime)
+
+SERVER_IP = os.environ["SERVER_IP"]
+SERVER_PORT = os.environ["SERVER_PORT"]
+CUST_ID= os.environ["CUST_ID"]
 
 print(' [*] Connecting to server ...')
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
@@ -19,7 +24,7 @@ def callback(ch, method, properties, body):
     print(" [x] Received new ride data ")
     json_obj = json.loads(body)
     sleep_time = int(json_obj['time'])
-    print(' [*] Sleeping for ', sleep_time, ' seconds.')
+    print(' [', CUST_ID , '] Sleeping for ', sleep_time, ' seconds.')
     time.sleep(sleep_time)
     print(json_obj)
     ch.basic_ack(delivery_tag=method.delivery_tag)
