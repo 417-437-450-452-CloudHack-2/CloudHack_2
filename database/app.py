@@ -17,15 +17,19 @@ channel.queue_declare(queue='ride-match-queue', durable=True)
 
 print(' [*] Waiting for messages.')
 
-db_name = 'database'
-db_user = 'username'
-db_pass = 'secret'
+db_name = 'ride_details'
+db_user = 'postgres'
+db_pass = 'postgres'
 db_host = 'db'
 db_port = '5432'
 
 # Connecto to the database
-db_string = 'postgres://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
+db_string = 'postgresql://{}:{}@{}:{}/{}'.format(db_user, db_pass, db_host, db_port, db_name)
 db = create_engine(db_string)
+
+def create_db():
+    # Create the database
+    db.execute("CREATE TABLE IF NOT EXISTS ride_details (pickup varchar(255), destination varchar(255), sleep_time integer, cost float, seats integer;")
 
 def add_new_row(json_obj):
     # Insert a new number into the 'numbers' table.
@@ -46,6 +50,7 @@ def get_row():
         return r[0]
 
 def callback(ch, method, properties, body):
+    create_db()
     print(" [x] Received new ride data ")
     json_obj = json.loads(body)
     add_new_row(json_obj)
