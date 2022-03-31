@@ -29,13 +29,6 @@ def callback(ch, method, properties, body):
     print(json_obj)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
-# def callback2(ch, method, properties, body):
-#     print(" [x] Received ride match data ")
-#     json_str = body
-#     print(json_str)
-#     ch.basic_ack(delivery_tag=method.delivery_tag)
-
-
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(queue='task_queue', on_message_callback=callback)
 # channel.basic_consume(queue='ride-match-queue', on_message_callback=callback2)
