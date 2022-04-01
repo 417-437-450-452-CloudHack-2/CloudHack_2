@@ -1,3 +1,4 @@
+#importing of necessary libraries
 import time
 import pika
 import json
@@ -6,21 +7,23 @@ import os
 # from sqlalchemy import create_engine
 from pymongo import MongoClient
 
+#sleeptime to handle system reboot
 sleepTime = 20
 time.sleep(sleepTime)
 
 print(' [*] Connecting to server ...')
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 channel = connection.channel()
-channel.queue_declare(queue='ride-match-queue', durable=True)
+channel.queue_declare(queue='ride-match-queue', durable=True) #declaration of queue for the Database
 
 print(' [*] Waiting for messages.')
 
-client = MongoClient('mongodb')
-db = client['ride-db']
-collection = db["ride-col"]
+client = MongoClient('mongodb') #invokation of client for MongoDB
+db = client['ride-db'] #naming of DB
+collection = db["ride-col"] #creation of collection
 print('[INFO] database CREATED.')
 
+#callback function to handle insertion of data 
 def callback(ch, method, properties, body):
     # create_db(db)
     # print(" [x] Received new ride data ")
